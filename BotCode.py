@@ -14,7 +14,7 @@ def get_audio(message):
 def get_pickture(message):
     bot.reply_to(message, 'Если это не дикпик, то даже смотреть не буду')
 
-@bot.message_handler(commands=['start'])
+@bot.message_handler(commands=['start'])    
 def start(message):
     bot.send_message(message.chat.id, f'Привет, {message.from_user.first_name}, напиши "/Help" ')
 

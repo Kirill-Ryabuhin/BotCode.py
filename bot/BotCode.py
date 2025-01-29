@@ -2,8 +2,11 @@ import telebot
 from telebot import types
 import random
 import webbrowser
+from dotenv import load_dotenv
+import os
 
-bot = telebot.TeleBot("7954757426:AAEzfIOqVP5R21UaN7p2wa_pCNrTKcDLF84", parse_mode=None)
+load_dotenv()
+bot = telebot.TeleBot(os.getenv('TOKEN'), parse_mode=None)
 
 
 @bot.message_handler(content_types=['voice'])

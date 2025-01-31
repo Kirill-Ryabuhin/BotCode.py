@@ -1,5 +1,6 @@
 import telebot
 from telebot import types
+import sqlite3
 import random
 import webbrowser
 from dotenv import load_dotenv
@@ -19,7 +20,25 @@ def get_pickture(message):
 
 @bot.message_handler(commands=['start'])    
 def start(message):
-    bot.send_message(message.chat.id, f'Привет, {message.from_user.first_name}, напиши "/Help" ')
+    connection = sqlite3.connect('list_of_users.sql')
+    cur = connection.cursor()
+
+    cur.execute('CREATE TABLE IF NOT EXISTS users (id int auto_increment primary key, name varchar (50), pass varchar(50))')
+    connection.commit()
+    cur.close()
+    connection.close()
+    bot.send_message(message.chat.id, f'Привет, {message.from_user.first_name}, "Для регистрации введите свой ник в Dota2" ')
+    bot.register_next_step_handler(message, user_name)
+
+
+def user_name(message):
+    nickname = message.text.strip()
+    bot.send_message(message.chat.id, "придумай и введи пароль")
+    bot.register_next_step_handler(message, user_pass)
+
+
+def user_pass(message):
+    user_password = message.text.strip()
 
 
 @bot.message_handler(commands=['help'])

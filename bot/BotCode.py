@@ -58,6 +58,25 @@ def user_password(message):
     bot.send_message(message.chat.id, 'Записал тебя в книжечку', reply_markup=markup)
 
 
+@bot.callback_query_handler(func=lambda call: True)
+def callback(call):
+    connection = sqlite3.connect('list_of_users.sql')
+    cur = connection.cursor()
+
+    cur.execute('SELECT * FROM users')
+
+    users = cur.fetchall()
+
+    info = ''
+    for el in users:
+        info += f'Имя: {el[1] }'
+
+    cur.close()
+    connection.close()
+
+    bot.send_message(call.message.chat.id, info)
+
+
 @bot.message_handler(commands=['help'])
 def main(message):
     bot.send_message(message.chat.id, 'Спроси меня "бот за кого сыграть"')

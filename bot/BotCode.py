@@ -47,12 +47,15 @@ def user_password(message):
 
     connection = sqlite3.connect('list_of_users.sql')
     cur = connection.cursor()
-    cur.execute(f'INSERT INTO users (name, pass) VALUES ({nickname}, {user_pass}')
-
+    cur.execute("INSERT INTO users (name, pass) VALUES ('%s', '%s')" % (nickname, user_pass))
 
     connection.commit()
     cur.close()
     connection.close()
+
+    markup = types.InlineKeyboardMarkup()
+    markup.add(telebot.types.InlineKeyboardButton('Список пользователей', callback_data='users'))
+    bot.send_message(message.chat.id, 'Записал тебя в книжечку', reply_markup=markup)
 
 
 @bot.message_handler(commands=['help'])

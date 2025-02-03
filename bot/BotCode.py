@@ -10,6 +10,9 @@ load_dotenv()
 bot = telebot.TeleBot(os.getenv('TOKEN'), parse_mode=None)
 
 
+nickname = None
+user_pass = None
+
 @bot.message_handler(content_types=['voice'])
 def get_audio(message):
     bot.reply_to(message, 'Я не понимаю что ты говоришь, кожанный ублюдок')
@@ -32,13 +35,24 @@ def start(message):
 
 
 def user_name(message):
+    global nickname
     nickname = message.text.strip()
     bot.send_message(message.chat.id, "придумай и введи пароль")
-    bot.register_next_step_handler(message, user_pass)
+    bot.register_next_step_handler(message, user_password)
 
 
-def user_pass(message):
-    user_password = message.text.strip()
+def user_password(message):
+    global user_pass
+    user_pass = message.text.strip()
+
+    connection = sqlite3.connect('list_of_users.sql')
+    cur = connection.cursor()
+    cur.execute(f'INSERT INTO users (name, pass) VALUES ({nickname}, {user_pass}')
+
+
+    connection.commit()
+    cur.close()
+    connection.close()
 
 
 @bot.message_handler(commands=['help'])
@@ -65,7 +79,7 @@ weights = list(map(lambda x: x['weight'], play))
 def info(message):
     if message.text.lower() == "бот за кого сыграть":
         bot.reply_to(message, random.choices(population=heroes, weights=weights, k=1)[0])
-    elif message.text.lower() != "бот за кого сыграть":
+    else:
         bot.reply_to(message, "я только подсказываю за кого сыграть, за остальным обращайся к своему мозгу, если он есть")
 
 

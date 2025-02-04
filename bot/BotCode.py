@@ -5,6 +5,7 @@ import random
 import webbrowser
 from dotenv import load_dotenv
 import os
+import requests
 
 load_dotenv()
 bot = telebot.TeleBot(os.getenv('TOKEN'), parse_mode=None)
@@ -95,6 +96,13 @@ play = [
 
 heroes = list(map(lambda x: x['hero'], play))
 weights = list(map(lambda x: x['weight'], play))
+
+
+@bot.message_handler(content_types=['text'])
+def select_hero(message):
+    if message.text.lower() == "бот за кого сыграть1":
+        res = requests.get(f'https://api.opendota.com/api/heroes')
+        bot.send_message(message.chat.id, f'Сыграй за: {res.json()}')
 
 
 @bot.message_handler(content_types=['text'])

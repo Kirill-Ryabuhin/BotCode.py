@@ -83,32 +83,28 @@ def main(message):
     bot.send_message(message.chat.id, 'Спроси меня "бот за кого сыграть"')
 
 
-play = [
-        {'hero': 'Гуля',  'weight': 4},
-        {'hero': 'Джагер', 'weight': 6},
-        {'hero': 'Фантомка', 'weight': 3},
-        {'hero': 'Вк', 'weight': 4},
-        {'hero': 'Антимаг', 'weight': 1},
-        {'hero': 'Свен', 'weight': 1},
-        {'hero': 'Медуза', 'weight': 1}
-]
+stat = requests.get(f'https://api.opendota.com/api/heroStats')
+stat_j = stat.json()
+
+win_re = []
+for match in stat_j:
+    win_re.append(match["pub_win"] / match["pub_pick"])
 
 
-heroes = list(map(lambda x: x['hero'], play))
-weights = list(map(lambda x: x['weight'], play))
+heroes = requests.get(f'https://api.opendota.com/api/heroes')
+data = heroes.json()
 
+list_of_heroes = []
 
-@bot.message_handler(content_types=['text'])
-def select_hero(message):
-    if message.text.lower() == "бот за кого сыграть1":
-        res = requests.get(f'https://api.opendota.com/api/heroes')
-        bot.send_message(message.chat.id, f'Сыграй за: {res.json()}')
+for dictionary in data:
+    if dictionary["localized_name"] not in list_of_heroes:
+        list_of_heroes.append(dictionary["localized_name"])
 
 
 @bot.message_handler(content_types=['text'])
 def info(message):
     if message.text.lower() == "бот за кого сыграть":
-        bot.reply_to(message, random.choices(population=heroes, weights=weights, k=1)[0])
+        bot.reply_to(message, random.choices(population=list_of_heroes, weights=win_re, k=1)[0])
     else:
         bot.reply_to(message, "я только подсказываю за кого сыграть, за остальным обращайся к своему мозгу, если он есть")
 
